@@ -1,0 +1,175 @@
+
+# coding: utf-8
+
+# In[ ]:
+
+<H1>  Machine Learning algorithms using Python</H1>
+
+
+# In[ ]:
+
+<H4> Linear Model using Perceptron </H4>
+
+
+# In[ ]:
+
+<p>This case study is using iris dataset already available in  python .Linear model using perceptron is being built.Model results 
+are accurate close to 91%</p>
+
+
+# In[ ]:
+
+import numpy
+
+
+# In[ ]:
+
+import scipy
+
+
+# In[ ]:
+
+<blockquote>
+    <p>Loading Packages required for the Exercise</p>
+
+    <p>These packages have functions and datasets stored .</p>
+
+    <p>These will be used in this exercise</p>
+</blockquote>
+
+
+# In[ ]:
+
+<p>One of the most populat datasets for many data analysis examples is  <em>Iris Dataset</em>.
+This is used in this exercise </p>
+
+
+# In[ ]:
+
+from sklearn import datasets
+
+
+# In[ ]:
+
+import numpy as np
+
+
+# In[ ]:
+
+<p>Loading the Iris dataset .
+The following steps are followed part of the exercise
+<ul>
+<li>data extraction from Iris dataset</li>
+<li>Data standardisation and cleansing </li>
+<li>Model building</li>
+<li>Prediction and validation of accuracy in test data </li>
+</ul>
+</p>
+
+iris = datasets.load_iris()
+# In[ ]:
+
+<p>Splitting the training and test data .</p>
+<p>Splitting the dataset is done using the function 
+<a href="http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.train_test_split.html">  train_test_split</a>
+ .This is available part of the sklearn package</p>
+
+X = iris.data[:, [2, 3]]y = iris.target
+# In[ ]:
+
+<p>Installing the train test split module .This will be useful to split a data into train and test</p>
+
+from sklearn.cross_validation import train_test_split
+# In[ ]:
+
+<p>Test size is initialized as 0.3 and random_state if set as 0 implies no standard sampling is applied in the dataset </p>
+
+X_train, X_test, y_train, y_test = train_test_split(
+...           X, y, test_size=0.3, random_state=0)
+# In[ ]:
+
+<p>Standardizing the daaset is being  done using StandardScaler module</p>
+
+from sklearn.preprocessing import StandardScaler sc = StandardScaler()
+# In[ ]:
+
+<p>sc.fit stores the meand and std values </p>
+
+sc.fit(X_train)
+# In[ ]:
+
+<p>Transforming the train and test data with standardized values </p>
+
+X_train_std = sc.transform(X_train)X_test_std = sc.transform(X_test)
+# In[ ]:
+
+<p>Perceptron module is being imported to build a linear model .There are many features available for tweaking in the perceptron module</p> 
+
+
+# In[ ]:
+
+<p>n_iter stands for epochs .Number of shuffles to be introduced in the dataset.</p>
+
+from sklearn.linear_model import Perceptron
+ppn = Perceptron(n_iter=40, eta0=0.1, random_state=0)
+ppn.fit(X_train_std, y_train)
+# In[ ]:
+
+<p>Now the Model is being built next steps is to predict the model on a test data set .This will help to validate the model accuracy.</p>
+
+
+# In[ ]:
+
+ppn = Perceptron(n_iter=40, eta0=0.1, random_state=0)
+ppn.fit(X_train_std, y_train)
+
+y_pred = ppn.predict(X_test_std)
+# In[ ]:
+
+<p>Model has classified 4 samples as mistakes </p>
+
+print('Misclassified samples: %d' % (y_test != y_pred).sum())
+from sklearn.metrics import accuracy_score
+# In[ ]:
+
+<p>The accuracy score for the model is 91%.This is just with a simple linear model using perceptron.</p>
+
+ print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))
+from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
+
+def plot_decision_regions(X, y, classifier, 
+                    test_idx=None, resolution=0.02):
+
+    # setup marker generator and color map
+    markers = ('s', 'x', 'o', '^', 'v')
+    colors = ('red', 'blue', 'lightgreen', 'gray', 'cyan')
+    cmap = ListedColormap(colors[:len(np.unique(y))])
+
+    #plot the decision surface
+    x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx1, xx2 = np.meshgrid(np.arange(x1_min, x1_max, resolution),
+                         np.arange(x2_min, x2_max, resolution))
+    Z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
+    Z = Z.reshape(xx1.shape)
+    plt.contourf(xx1, xx2, Z, alpha=0.4, cmap=cmap)
+    plt.xlim(xx1.min(), xx1.max())
+    plt.ylim(xx2.min(), xx2.max())
+
+    #plot all samples
+    for idx, cl in enumerate(np.unique(y)):
+        plt.scatter(x=X[y == cl, 0], y=X[y == cl, 1],
+                    alpha=0.8, c=cmap(idx),
+                    marker=markers[idx], label=cl)
+        
+    #highlight test samples
+    if test_idx:
+        X_test, y_test = X[test_idx, :], y[test_idx]   
+        plt.scatter(X_test[:, 0], X_test[:, 1], c='', 
+                alpha=1.0, linewidths=1, marker='o', 
+                s=55, label='test set')X_combined_std = np.vstack((X_train_std, X_test_std))
+y_combined = np.hstack((y_train, y_test)) plot_decision_regions(X=X_combined_std, 
+...                       y=y_combined, 
+...                       classifier=ppn,
+...                       test_idx=range(105,150))plt.xlabel('petal length [standardized]') plt.ylabel('petal width [standardized]') plt.legend(loc='upper left')plt.show()
